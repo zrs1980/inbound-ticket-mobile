@@ -80,8 +80,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing path parameter' });
   }
 
-  const accountIdFormatted = accountId.replace(/-/g, '_').toLowerCase();
-  const baseUrl = `https://${accountIdFormatted}.suitetalk.api.netsuite.com/services/rest/record/v1${path}`;
+  // NetSuite URL requires underscores replaced with hyphens (e.g. 1234567_SB1 → 1234567-sb1)
+  const accountIdFormatted = accountId.replace(/_/g, '-').toLowerCase();
+  // path already includes the full REST sub-path (e.g. /record/v1/... or /query/v1/suiteql)
+  const baseUrl = `https://${accountIdFormatted}.suitetalk.api.netsuite.com/services/rest${path}`;
 
   // Build full URL with query params
   const urlObj = new URL(baseUrl);
