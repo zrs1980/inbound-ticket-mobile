@@ -69,7 +69,7 @@ export async function deleteTicketLine(id) {
 // ─── Lookups ─────────────────────────────────────────────────────────────────
 
 export async function searchVendors(query = '') {
-  const q = `SELECT id, companyName AS name FROM vendor WHERE companyName LIKE '%${query}%' ORDER BY companyName FETCH NEXT 50 ROWS ONLY`;
+  const q = `SELECT id, COALESCE(companyName, entityId) AS name FROM vendor WHERE LOWER(COALESCE(companyName, entityId)) LIKE LOWER('%${query}%') ORDER BY name FETCH NEXT 50 ROWS ONLY`;
   return request('POST', QUERY, {}, { q });
 }
 
