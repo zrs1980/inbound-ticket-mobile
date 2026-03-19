@@ -36,8 +36,10 @@ export default async function handler(req, res) {
     },
   });
 
+  // Pass baseUrl + raw queryParams separately so oauth-1.0a handles encoding
+  // (passing fullUrl causes double-encoding of already-encoded query strings)
   const authData = oauth.authorize(
-    { url: fullUrl, method: req.method },
+    { url: baseUrl, method: req.method, data: Object.keys(queryParams).length ? queryParams : null },
     { key: tokenId, secret: tokenSecret }
   );
 
@@ -54,7 +56,6 @@ export default async function handler(req, res) {
       headers: {
         Authorization: authHeader,
         'Content-Type': 'application/json',
-        prefer: 'transient',
       },
     };
 
