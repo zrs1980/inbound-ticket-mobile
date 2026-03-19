@@ -1,5 +1,56 @@
-import OAuth from 'oauth-1.0a';
 import crypto from 'crypto';
+
+// RFC 3986 percent-encoding (stricter than encodeURIComponent)
+function pct(str) {
+  return encodeURIComponent(String(str))
+    .replace(/!/g, '%21')
+    .replace(/'/g, '%27')
+    .replace(/\(/g, '%28')
+    .replace(/\)/g, '%29')
+    .replace(/\*/g, '%2A');
+}
+
+function buildOAuthHeader({ method, baseUrl, queryParams, accountId, consumerKey, consumerSecret, tokenId, tokenSecret }) {
+  const nonce = crypto.randomBytes(16).toString('hex');
+  const timestamp = Math.floor(Date.now() / 1000).toString();
+
+  const oauthParams = {
+    oauth_consumer_key: consumerKey,
+    oauth_nonce: nonce,
+    oauth_signature_method: 'HMAC-SHA256',
+    oauth_timestamp: timestamp,
+    oauth_token: tokenId,
+    oauth_version: '1.0',
+  };
+
+  // Combine oauth params + URL query params for signature
+  const allParams = { ...oauthParams, ...queryParams };
+
+  // Sort and encode for signature base string
+  const paramString = Object.keys(allParams)
+    .sort()
+    .map((k) => `${pct(k)}=${pct(allParams[k])}`)
+    .join('&');
+
+  const baseString = `${method.toUpperCase()}&${pct(baseUrl)}&${pct(paramString)}`;
+  const signingKey = `${pct(consumerSecret)}&${pct(tokenSecret)}`;
+  const signature = crypto.createHmac('sha256', signingKey).update(baseString).digest('base64');
+
+  console.log('Base string:', baseString);
+  console.log('Signing key:', signingKey);
+  console.log('Signature:', signature);
+
+  const headerParts = {
+    ...oauthParams,
+    oauth_signature: signature,
+  };
+
+  const headerStr = Object.keys(headerParts)
+    .map((k) => `${k}="${pct(headerParts[k])}"`)
+    .join(', ');
+
+  return `OAuth realm="${accountId}", ${headerStr}`;
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,34 +72,27 @@ export default async function handler(req, res) {
   const { path, ...queryParams } = req.query;
   if (!path) return res.status(400).json({ error: 'Missing path parameter' });
 
-  // Build the full NetSuite URL including any query params
+  // Base URL — no query string (used for signature and fetch)
   const baseUrl = `https://${accountId}.suitetalk.api.netsuite.com/services/rest${path}`;
+
+  // Full URL with query params for the actual fetch
   const urlObj = new URL(baseUrl);
   Object.entries(queryParams).forEach(([k, v]) => urlObj.searchParams.set(k, v));
   const fullUrl = urlObj.toString();
 
-  // Use oauth-1.0a library for correct RFC 3986 encoding + HMAC-SHA256 signing
-  const oauth = new OAuth({
-    consumer: { key: consumerKey, secret: consumerSecret },
-    signature_method: 'HMAC-SHA256',
-    hash_function(base_string, key) {
-      return crypto.createHmac('sha256', key).update(base_string).digest('base64');
-    },
+  const authHeader = buildOAuthHeader({
+    method: req.method,
+    baseUrl,
+    queryParams,
+    accountId,
+    consumerKey,
+    consumerSecret,
+    tokenId,
+    tokenSecret,
   });
 
-  // Pass baseUrl + raw queryParams separately so oauth-1.0a handles encoding
-  // (passing fullUrl causes double-encoding of already-encoded query strings)
-  const authData = oauth.authorize(
-    { url: baseUrl, method: req.method, data: Object.keys(queryParams).length ? queryParams : null },
-    { key: tokenId, secret: tokenSecret }
-  );
-
-  // Build Authorization header and prepend the required realm
-  const oauthHeader = oauth.toHeader(authData);
-  const authHeader = oauthHeader.Authorization.replace(
-    'OAuth ',
-    `OAuth realm="${accountId}", `
-  );
+  console.log('Full URL:', fullUrl);
+  console.log('Auth Header:', authHeader);
 
   try {
     const fetchOptions = {
@@ -66,14 +110,12 @@ export default async function handler(req, res) {
     const nsRes = await fetch(fullUrl, fetchOptions);
     const text = await nsRes.text();
 
-    console.log('NS URL:', fullUrl);
     console.log('NS Status:', nsRes.status);
     console.log('NS Response:', text);
 
     let data;
     try { data = JSON.parse(text); } catch { data = { raw: text }; }
 
-    // Include debug info on errors so we can diagnose
     if (!nsRes.ok) {
       data._debug = { url: fullUrl, status: nsRes.status };
     }
