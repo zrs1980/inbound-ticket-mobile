@@ -65,8 +65,17 @@ export default async function handler(req, res) {
     const nsRes = await fetch(fullUrl, fetchOptions);
     const text = await nsRes.text();
 
+    console.log('NS URL:', fullUrl);
+    console.log('NS Status:', nsRes.status);
+    console.log('NS Response:', text);
+
     let data;
     try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+    // Include debug info on errors so we can diagnose
+    if (!nsRes.ok) {
+      data._debug = { url: fullUrl, status: nsRes.status };
+    }
 
     res.status(nsRes.status).json(data);
   } catch (err) {
