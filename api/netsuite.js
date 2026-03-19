@@ -45,8 +45,9 @@ function buildOAuthHeader({ method, baseUrl, queryParams, accountId, consumerKey
     oauth_signature: signature,
   };
 
+  // Values in Authorization header are NOT percent-encoded (raw base64 signature kept as-is)
   const headerStr = Object.keys(headerParts)
-    .map((k) => `${k}="${pct(headerParts[k])}"`)
+    .map((k) => `${k}="${headerParts[k]}"`)
     .join(', ');
 
   return `OAuth realm="${accountId}", ${headerStr}`;
