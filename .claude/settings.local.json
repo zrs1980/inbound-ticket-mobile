@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo:*)",
+      "Bash(npm create:*)",
+      "Bash(npx create-vite@latest . --template react)",
+      "Bash(npx:*)",
+      "Bash(rm -rf \"C:/Claude Projects/inbound-ticket-mobile-app/C\")",
+      "Bash(printf 'y\\\\n')",
+      "Bash(cp -r \"C:/Claude Projects/temp-react-scaffold/.\" \"C:/Claude Projects/inbound-ticket-mobile-app/\")",
+      "Bash(rm -rf \"C:/Claude Projects/temp-react-scaffold\")",
+      "Bash(npm install:*)"
+    ]
+  }
+}
