@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTickets, hasCredentials } from '../services/netsuiteApi';
+import { getTickets } from '../services/netsuiteApi';
 
 export default function TicketList() {
   const navigate = useNavigate();
@@ -10,7 +10,6 @@ export default function TicketList() {
   const [error, setError] = useState('');
 
   const load = useCallback(async (q = '') => {
-    if (!hasCredentials()) return navigate('/settings');
     setLoading(true);
     setError('');
     try {

@@ -2,17 +2,6 @@
 
 const BASE = '/api/netsuite';
 
-function getCredHeaders() {
-  const creds = JSON.parse(localStorage.getItem('ns_credentials') || '{}');
-  return {
-    'x-ns-account-id': creds.accountId || '',
-    'x-ns-consumer-key': creds.consumerKey || '',
-    'x-ns-consumer-secret': creds.consumerSecret || '',
-    'x-ns-token-id': creds.tokenId || '',
-    'x-ns-token-secret': creds.tokenSecret || '',
-  };
-}
-
 async function request(method, path, queryParams = {}, body = null) {
   const url = new URL(BASE, window.location.origin);
   url.searchParams.set('path', path);
@@ -20,7 +9,7 @@ async function request(method, path, queryParams = {}, body = null) {
 
   const opts = {
     method,
-    headers: { 'Content-Type': 'application/json', ...getCredHeaders() },
+    headers: { 'Content-Type': 'application/json' },
   };
   if (body) opts.body = JSON.stringify(body);
 
@@ -98,7 +87,3 @@ export async function getPurchaseOrders(vendorId = '') {
   return request('GET', '/query/v1/suiteql', { q });
 }
 
-export function hasCredentials() {
-  const creds = JSON.parse(localStorage.getItem('ns_credentials') || '{}');
-  return !!(creds.accountId && creds.consumerKey && creds.consumerSecret && creds.tokenId && creds.tokenSecret);
-}

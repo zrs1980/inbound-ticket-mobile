@@ -56,21 +56,21 @@ export default async function handler(req, res) {
   // Allow CORS from the frontend
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-ns-account-id, x-ns-consumer-key, x-ns-consumer-secret, x-ns-token-id, x-ns-token-secret');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Credentials passed as headers from the frontend
-  const accountId = req.headers['x-ns-account-id'];
-  const consumerKey = req.headers['x-ns-consumer-key'];
-  const consumerSecret = req.headers['x-ns-consumer-secret'];
-  const tokenId = req.headers['x-ns-token-id'];
-  const tokenSecret = req.headers['x-ns-token-secret'];
+  // Credentials from Vercel environment variables
+  const accountId = process.env.NS_ACCOUNT_ID;
+  const consumerKey = process.env.NS_CONSUMER_KEY;
+  const consumerSecret = process.env.NS_CONSUMER_SECRET;
+  const tokenId = process.env.NS_TOKEN_ID;
+  const tokenSecret = process.env.NS_TOKEN_SECRET;
 
   if (!accountId || !consumerKey || !consumerSecret || !tokenId || !tokenSecret) {
-    return res.status(400).json({ error: 'Missing NetSuite credentials in headers' });
+    return res.status(500).json({ error: 'NetSuite credentials not configured on server' });
   }
 
   // path is passed as a query param: /api/netsuite?path=/customrecord_looperp_inb_tckt

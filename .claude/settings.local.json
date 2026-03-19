@@ -11,7 +11,8 @@
       "Bash(rm -rf \"C:/Claude Projects/temp-react-scaffold\")",
       "Bash(npm install:*)",
       "mcp__claude_ai_NetSuite__ns_getRecordTypeMetadata",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(vercel:*)"
     ]
   }
 }
