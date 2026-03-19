@@ -4,7 +4,7 @@ const BASE = '/api/netsuite';
 const RECORD = '/record/v1';
 const QUERY = '/query/v1/suiteql';
 
-async function request(method, path, queryParams = {}, body = null) {
+async function request(method, path, queryParams = {}, body = null, attempt = 1) {
   const url = new URL(BASE, window.location.origin);
   url.searchParams.set('path', path);
   Object.entries(queryParams).forEach(([k, v]) => url.searchParams.set(k, v));
@@ -17,6 +17,11 @@ async function request(method, path, queryParams = {}, body = null) {
 
   const res = await fetch(url.toString(), opts);
   const data = await res.json().catch(() => ({}));
+
+  // Retry once on 401 — fresh nonce/timestamp is generated server-side on each call
+  if (res.status === 401 && attempt < 3) {
+    return request(method, path, queryParams, body, attempt + 1);
+  }
 
   if (!res.ok) {
     const message = data?.['o:errorDetails']?.[0]?.detail || data?.message || `HTTP ${res.status}`;
