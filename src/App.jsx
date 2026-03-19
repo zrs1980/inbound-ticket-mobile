@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import TicketList from './pages/TicketList';
 import TicketDetail from './pages/TicketDetail';
 import TicketForm from './pages/TicketForm';
-import Settings from './pages/Settings';
 
 export default function App() {
   return (
@@ -12,8 +11,7 @@ export default function App() {
         <Route path="/tickets/new" element={<TicketForm />} />
         <Route path="/tickets/:id" element={<TicketDetail />} />
         <Route path="/tickets/:id/edit" element={<TicketForm />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+<Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

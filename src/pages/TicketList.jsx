@@ -51,7 +51,6 @@ export default function TicketList() {
           >
             + New
           </button>
-          <button onClick={() => navigate('/settings')} className="text-white opacity-80 text-xl">⚙</button>
         </div>
       </header>
 
