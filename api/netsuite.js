@@ -50,7 +50,8 @@ function buildOAuthHeader({ method, baseUrl, queryParams, accountId, consumerKey
     .map((k) => `${k}="${headerParts[k]}"`)
     .join(', ');
 
-  return `OAuth realm="${accountId}", ${headerStr}`;
+  // NetSuite requires realm to be uppercase account ID
+  return `OAuth realm="${accountId.toUpperCase()}", ${headerStr}`;
 }
 
 export default async function handler(req, res) {

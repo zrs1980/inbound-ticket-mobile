@@ -32,7 +32,7 @@ export async function getTickets({ query = '', limit = 50, offset = 0 } = {}) {
     ? `SELECT id, name, custrecord_looperp_inb_tckt_date, custrecord_looperp_inb_tckt_supplier, custrecord_looperp_inb_tckt_status, custrecord_looperp_inb_tckt_driver_name, custrecord_looperp_inb_tckt_net_tot FROM customrecord_looperp_inb_tckt WHERE name LIKE '%${query}%' ORDER BY lastmodified DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
     : `SELECT id, name, custrecord_looperp_inb_tckt_date, custrecord_looperp_inb_tckt_supplier, custrecord_looperp_inb_tckt_status, custrecord_looperp_inb_tckt_driver_name, custrecord_looperp_inb_tckt_net_tot FROM customrecord_looperp_inb_tckt ORDER BY lastmodified DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`;
 
-  return request('GET', QUERY, { q, limit });
+  return request('POST', QUERY, {}, { q });
 }
 
 export async function getTicket(id) {
@@ -51,7 +51,7 @@ export async function updateTicket(id, data) {
 
 export async function getTicketLines(ticketId) {
   const q = `SELECT id, name, custrecord_looperp_inb_tckt_ln_item, custrecord_looperp_inb_tckt_ln_dscption, custrecord_looperp_inb_tckt_ln_qty, custrecord_looperp_inb_tckt_ln_uom, custrecord_looperp_inb_tckt_ln_unt_price, custrecord_looperp_inb_tckt_ln_ext_price, custrecord_looperp_inb_tckt_ln_net_lbs, custrecord_looperp_inb_tckt_ln_gr_1_lbs, custrecord_looperp_inb_tckt_ln_tr_1_lbs FROM customrecord_looperp_inb_tckt_ln WHERE custrecord_looperp_inb_tckt_ln_inb_tckt = ${ticketId}`;
-  return request('GET', QUERY, { q });
+  return request('POST', QUERY, {}, { q });
 }
 
 export async function createTicketLine(data) {
@@ -70,21 +70,21 @@ export async function deleteTicketLine(id) {
 
 export async function searchVendors(query = '') {
   const q = `SELECT id, companyName AS name FROM vendor WHERE companyName LIKE '%${query}%' ORDER BY companyName FETCH NEXT 50 ROWS ONLY`;
-  return request('GET', QUERY, { q });
+  return request('POST', QUERY, {}, { q });
 }
 
 export async function searchItems(query = '') {
   const q = `SELECT id, itemId AS name, displayName FROM item WHERE itemId LIKE '%${query}%' ORDER BY itemId FETCH NEXT 50 ROWS ONLY`;
-  return request('GET', QUERY, { q });
+  return request('POST', QUERY, {}, { q });
 }
 
 export async function searchLocations(query = '') {
   const q = `SELECT id, name FROM location WHERE name LIKE '%${query}%' ORDER BY name FETCH NEXT 50 ROWS ONLY`;
-  return request('GET', QUERY, { q });
+  return request('POST', QUERY, {}, { q });
 }
 
 export async function getPurchaseOrders(vendorId = '') {
   const where = vendorId ? `WHERE entity = ${vendorId}` : '';
   const q = `SELECT id, tranId AS name FROM transaction WHERE type = 'PurchOrd' ${where} ORDER BY tranDate DESC FETCH NEXT 50 ROWS ONLY`;
-  return request('GET', QUERY, { q });
+  return request('POST', QUERY, {}, { q });
 }
