@@ -9,7 +9,9 @@
       "Bash(printf 'y\\\\n')",
       "Bash(cp -r \"C:/Claude Projects/temp-react-scaffold/.\" \"C:/Claude Projects/inbound-ticket-mobile-app/\")",
       "Bash(rm -rf \"C:/Claude Projects/temp-react-scaffold\")",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "mcp__claude_ai_NetSuite__ns_getRecordTypeMetadata",
+      "Bash(npm run:*)"
     ]
   }
 }
